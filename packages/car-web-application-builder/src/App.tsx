@@ -1,9 +1,17 @@
-import * as React from 'react';
-import { Container, Paper, SegmentedControl, Stack, Text } from '@mantine/core';
-import { Blink } from './pages/Blink';
-import { Normal } from './pages/Normal';
-import { getState, sendCommand } from './api/ServerAPI';
-import { State } from './common/interfaces';
+import * as React from "react";
+import {
+  Button,
+  Container,
+  Group,
+  Paper,
+  SegmentedControl,
+  Stack,
+  Text,
+} from "@mantine/core";
+import { Blink } from "./pages/Blink";
+import { Normal } from "./pages/Normal";
+import { getState, sendCommand } from "./api/ServerAPI";
+import { State } from "./common/interfaces";
 
 function App() {
   const [state, setState] = React.useState<State>({
@@ -11,26 +19,102 @@ function App() {
     led2: true,
     blinking: true,
     together: false,
-    delay: 0
+    delay: 0,
   });
 
   const onSegmentChanged = (newValue: string) => {
-    sendCommand([["blink", [newValue].includes('false')?"OFF":"ON"]]);
+    sendCommand([["blink", [newValue].includes("false") ? "OFF" : "ON"]]);
     getState(console.log);
     getState(setState);
-  }
+  };
 
-  React.useEffect(()=>{
+  React.useEffect(() => {
     console.log("USED EFFECT");
     getState(console.log);
     getState(setState);
   }, []);
 
+  const updateMotor = async (
+    id: number,
+    state: "FORWARD" | "BACKWARD" | "STOP"
+  ) => {
+    console.log(`Sending ${state} to motor ${id}`);
+    sendCommand([[`m${id}`, `${state}`]]);
+  };
+
   return (
     <Container size="sm" my="lg">
       <Paper shadow="xs">
         <Stack spacing="xl" p="lg">
-          <Text weight={600}>Kontroliraj Lampice</Text>
+          <Stack>
+            <Text>Motor 1</Text>
+            <Group>
+              <Button
+                onMouseUp={() => updateMotor(1, "STOP")}
+                onMouseDown={() => updateMotor(1, "FORWARD")}
+              >
+                FORWARD
+              </Button>
+              <Button
+                onMouseUp={() => updateMotor(1, "STOP")}
+                onMouseDown={() => updateMotor(1, "BACKWARD")}
+              >
+                BACKWARD
+              </Button>
+            </Group>
+          </Stack>
+          <Stack>
+            <Text>Motor 2</Text>
+            <Group>
+              <Button
+                onMouseUp={() => updateMotor(2, "STOP")}
+                onMouseDown={() => updateMotor(2, "FORWARD")}
+              >
+                FORWARD
+              </Button>
+              <Button
+                onMouseUp={() => updateMotor(2, "STOP")}
+                onMouseDown={() => updateMotor(2, "BACKWARD")}
+              >
+                BACKWARD
+              </Button>
+            </Group>
+          </Stack>
+          <Stack>
+            <Text>Motor 3</Text>
+            <Group>
+              <Button
+                onMouseUp={() => updateMotor(3, "STOP")}
+                onMouseDown={() => updateMotor(3, "FORWARD")}
+              >
+                FORWARD
+              </Button>
+              <Button
+                onMouseUp={() => updateMotor(3, "STOP")}
+                onMouseDown={() => updateMotor(3, "BACKWARD")}
+              >
+                BACKWARD
+              </Button>
+            </Group>
+          </Stack>
+          <Stack>
+            <Text>Motor 4</Text>
+            <Group>
+              <Button
+                onMouseUp={() => updateMotor(4, "STOP")}
+                onMouseDown={() => updateMotor(4, "FORWARD")}
+              >
+                FORWARD
+              </Button>
+              <Button
+                onMouseUp={() => updateMotor(4, "STOP")}
+                onMouseDown={() => updateMotor(4, "BACKWARD")}
+              >
+                BACKWARD
+              </Button>
+            </Group>
+          </Stack>
+          {/* <Text weight={600}>Kontroliraj Lampice</Text>
           <SegmentedControl
             color="blue"
             value={state.blinking?"true":"false"}
@@ -41,7 +125,7 @@ function App() {
             ]}
           />
           {!state.blinking && <Normal state={state} setState={setState} />}
-          {state.blinking && <Blink state={state} setState={setState} />}
+          {state.blinking && <Blink state={state} setState={setState} />} */}
         </Stack>
       </Paper>
     </Container>

@@ -17,27 +17,56 @@ const char *ssid = "hello";
 const char *password = "hello1234";
 
 unsigned long currentMillis = millis();
-boolean blinking = false;
-boolean together = false;
-int step = 0;
-unsigned long delayMillis = 1000;
 
 // Webserver
 AsyncWebServer server(80);
 
-const int LED_PIN_1 = 2;
-const int LED_PIN_2 = 12;
-
-void toggleLED(String status, int pin)
+void setMotor(int pin1, int pin2, String state)
 {
-  if (status == "ON")
-    digitalWrite(pin, HIGH);
+  if (state == "FORWARD")
+  {
+    digitalWrite(pin1, HIGH);
+    digitalWrite(pin2, LOW);
+    Serial.println("IN FW");
+  }
+  else if (state == "BACKWARD")
+  {
+    digitalWrite(pin1, LOW);
+    digitalWrite(pin2, HIGH);
+    Serial.println("IN BW");
+  }
   else
-    digitalWrite(pin, LOW);
+  {
+    digitalWrite(pin1, LOW);
+    digitalWrite(pin2, LOW);
+    Serial.println("IN STP");
+  }
 }
+
+const int A1A = 5;
+const int A1B = 15;
+const int B1A = 18;
+const int B1B = 19;
+
+const int A2A = 13;
+const int A2B = 12;
+const int B2A = 27;
+const int B2B = 26;
+
+int speed = 51;
 
 void setup()
 {
+  pinMode(A1A, OUTPUT);
+  pinMode(A1B, OUTPUT);
+  pinMode(B1A, OUTPUT);
+  pinMode(B1B, OUTPUT);
+
+  pinMode(A2A, OUTPUT);
+  pinMode(A2B, OUTPUT);
+  pinMode(B2A, OUTPUT);
+  pinMode(B2B, OUTPUT);
+
   Serial.begin(115200);
   Serial.println("Starting the LittleFS Webserver..");
 
@@ -61,12 +90,6 @@ void setup()
   Serial.print("IP Address: ");
   Serial.println(ip);
 
-  // LED PIN
-  pinMode(LED_PIN_1, OUTPUT);
-  pinMode(LED_PIN_2, OUTPUT);
-  digitalWrite(LED_PIN_1, HIGH);
-  digitalWrite(LED_PIN_2, HIGH);
-
   // Route for root index.html
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request)
             { request->send(LittleFS, "/index.html", "text/html"); });
@@ -85,30 +108,33 @@ void setup()
   // Respond to toggle event
   server.on("/command", HTTP_GET, [](AsyncWebServerRequest *request)
             {
-              if (request->hasParam("pin"))
+              if (request->hasParam("m1"))
               {
-                String pin = request->getParam("pin")->value();
-                String value = request->getParam("value")->value();
-                toggleLED(value, pin == "0" ? LED_PIN_1 : LED_PIN_2);
+                String m1 = request->getParam("m1")->value();
+                setMotor(A1A, A1B, m1);
+              }
+              if (request->hasParam("m2"))
+              {
+                String m2 = request->getParam("m2")->value();
+                setMotor(B1A, B1B, m2);
+  
+              }
+              if (request->hasParam("m3"))
+              {
+                String m3 = request->getParam("m3")->value();
+                setMotor(A2A, A2B, m3);
+              }
+              if (request->hasParam("m4"))
+              {
+                String m4 = request->getParam("m4")->value();
+                setMotor(B2A, B2B, m4);
               }
 
-              if (request->hasParam("blink"))
-              {
-                String blink = request->getParam("blink")->value();
-                blinking = blink == "ON";
-              }
 
-              if (request->hasParam("delay"))
-              {
-                String delay = request->getParam("delay")->value();
-                delayMillis = atoi(delay.c_str());
-              }
 
-              if (request->hasParam("together"))
-              {
-                String reqtogether = request->getParam("together")->value();
-                together = reqtogether == "true";
-              }
+
+
+                // delayMillis = atoi(delay.c_str());
 
               request->send(200, "text/plain", "Success from server"); });
 
@@ -116,11 +142,11 @@ void setup()
             {
               AsyncResponseStream *response = request->beginResponseStream("application/json");
               DynamicJsonDocument json(1024);
-              json["led1"] = digitalRead(LED_PIN_1)==LOW;
-              json["led2"] = digitalRead(LED_PIN_2)==LOW;
-              json["blinking"] = blinking;
-              json["delay"] = delayMillis;
-              json["together"] = together;
+              // json["led1"] = digitalRead(LED_PIN_1)==LOW;
+              // json["led2"] = digitalRead(LED_PIN_2)==LOW;
+              // json["blinking"] = blinking;
+              // json["delay"] = delayMillis;
+              // json["together"] = together;
               serializeJson(json, *response);
               request->send(response); });
 
@@ -132,23 +158,5 @@ void setup()
 
 void loop()
 {
-  if (millis() - currentMillis > delayMillis)
-  {
-    currentMillis = millis();
-    if (blinking)
-    {
-      if (step == 0)
-      {
-        step = 1;
-        toggleLED("OFF", LED_PIN_1);
-        toggleLED(together ? "OFF" : "ON", LED_PIN_2);
-      }
-      else
-      {
-        step = 0;
-        toggleLED("ON", LED_PIN_1);
-        toggleLED(together ? "ON" : "OFF", LED_PIN_2);
-      }
-    }
-  }
+  
 }
