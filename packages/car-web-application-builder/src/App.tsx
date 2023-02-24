@@ -2,6 +2,7 @@ import * as React from "react";
 import {
   Button,
   Container,
+  Grid,
   Group,
   Paper,
   SegmentedControl,
@@ -45,6 +46,42 @@ function App() {
   return (
     <Container size="sm" my="lg">
       <Paper shadow="xs">
+        <Grid grow>
+          <Grid.Col span={4}></Grid.Col>
+          <Grid.Col span={4}><Button onClick={()=>{
+            updateMotor(1, "FORWARD");
+            updateMotor(2, "FORWARD");
+            updateMotor(3, "BACKWARD");
+            updateMotor(4, "BACKWARD");
+          }}>FORWARD</Button></Grid.Col>
+          <Grid.Col span={4}></Grid.Col>
+          <Grid.Col span={4}><Button onClick={()=>{
+            updateMotor(1, "FORWARD");
+            updateMotor(2, "FORWARD");
+            updateMotor(3, "FORWARD");
+            updateMotor(4, "FORWARD");
+          }}>LEFT</Button></Grid.Col>
+          <Grid.Col span={4}><Button onClick={()=>{
+            updateMotor(1, "STOP");
+            updateMotor(2, "STOP");
+            updateMotor(3, "STOP");
+            updateMotor(4, "STOP");
+          }}>STOP</Button></Grid.Col>
+          <Grid.Col span={4}><Button onClick={()=>{
+            updateMotor(1, "BACKWARD");
+            updateMotor(2, "BACKWARD");
+            updateMotor(3, "BACKWARD");
+            updateMotor(4, "BACKWARD");
+          }}>RIGHT</Button></Grid.Col>
+          <Grid.Col span={4}></Grid.Col>
+          <Grid.Col span={4}><Button onClick={()=>{
+            updateMotor(1, "BACKWARD");
+            updateMotor(2, "BACKWARD");
+            updateMotor(3, "FORWARD");
+            updateMotor(4, "FORWARD");
+          }}>FORWARD</Button></Grid.Col>
+          <Grid.Col span={4}></Grid.Col>
+        </Grid>
         <Stack spacing="xl" p="lg">
           <Stack>
             <Text>Motor 1</Text>

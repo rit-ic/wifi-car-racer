@@ -10,9 +10,6 @@
 #include <ESPAsyncWebServer.h>
 #include <LittleFS.h>
 
-// Replace with your network credentials
-// const char *ssid = "ALHN-5934";
-// const char *password = "tZvGJ8Xw42";
 const char *ssid = "hello";
 const char *password = "hello1234";
 
@@ -25,33 +22,33 @@ void setMotor(int pin1, int pin2, String state)
 {
   if (state == "FORWARD")
   {
-    digitalWrite(pin1, HIGH);
-    digitalWrite(pin2, LOW);
+    analogWrite(pin1, 100);
+    analogWrite(pin2, 0);
     Serial.println("IN FW");
   }
   else if (state == "BACKWARD")
   {
-    digitalWrite(pin1, LOW);
-    digitalWrite(pin2, HIGH);
+    analogWrite(pin1, 0);
+    analogWrite(pin2, 100);
     Serial.println("IN BW");
   }
   else
   {
-    digitalWrite(pin1, LOW);
-    digitalWrite(pin2, LOW);
+    analogWrite(pin1, 0);
+    analogWrite(pin2, 0);
     Serial.println("IN STP");
   }
 }
 
-const int A1A = 5;
-const int A1B = 15;
-const int B1A = 18;
-const int B1B = 19;
+const int A1A = 33;
+const int A1B = 32;
+const int B1A = 25;
+const int B1B = 26;
 
-const int A2A = 13;
-const int A2B = 12;
-const int B2A = 27;
-const int B2B = 26;
+const int A2A = 19;
+const int A2B = 21;
+const int B2A = 23;
+const int B2B = 22;
 
 int speed = 51;
 
@@ -117,7 +114,6 @@ void setup()
               {
                 String m2 = request->getParam("m2")->value();
                 setMotor(B1A, B1B, m2);
-  
               }
               if (request->hasParam("m3"))
               {
@@ -129,10 +125,6 @@ void setup()
                 String m4 = request->getParam("m4")->value();
                 setMotor(B2A, B2B, m4);
               }
-
-
-
-
 
                 // delayMillis = atoi(delay.c_str());
 
@@ -158,5 +150,4 @@ void setup()
 
 void loop()
 {
-  
 }
