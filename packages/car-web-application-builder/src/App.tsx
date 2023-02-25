@@ -4,8 +4,10 @@ import {
   Container,
   Grid,
   Group,
+  Input,
   Paper,
   SegmentedControl,
+  Slider,
   Stack,
   Text,
 } from "@mantine/core";
@@ -22,6 +24,8 @@ function App() {
     together: false,
     delay: 0,
   });
+
+  const [speed, setSpeed] = React.useState<number>(0);
 
   const onSegmentChanged = (newValue: string) => {
     sendCommand([["blink", [newValue].includes("false") ? "OFF" : "ON"]]);
@@ -40,26 +44,29 @@ function App() {
     state: "FORWARD" | "BACKWARD" | "STOP"
   ) => {
     console.log(`Sending ${state} to motor ${id}`);
-    sendCommand([[`m${id}`, `${state}`]]);
+    sendCommand([[`m${id}`, `${state}`], ['speed', `${speed}`]]);
   };
 
   return (
     <Container size="sm" my="lg">
       <Paper shadow="xs">
+        
+      <Slider value={speed} min={0} max={255} step={1} onChange={setSpeed} />
+
         <Grid grow>
-          <Grid.Col span={4}></Grid.Col>
-          <Grid.Col span={4}><Button onClick={()=>{
-            updateMotor(1, "FORWARD");
-            updateMotor(2, "FORWARD");
-            updateMotor(3, "BACKWARD");
-            updateMotor(4, "BACKWARD");
-          }}>FORWARD</Button></Grid.Col>
           <Grid.Col span={4}></Grid.Col>
           <Grid.Col span={4}><Button onClick={()=>{
             updateMotor(1, "FORWARD");
             updateMotor(2, "FORWARD");
             updateMotor(3, "FORWARD");
             updateMotor(4, "FORWARD");
+          }}>FORWARD</Button></Grid.Col>
+          <Grid.Col span={4}></Grid.Col>
+          <Grid.Col span={4}><Button onClick={()=>{
+            updateMotor(1, "FORWARD");
+            updateMotor(2, "BACKWARD");
+            updateMotor(3, "FORWARD");
+            updateMotor(4, "BACKWARD");
           }}>LEFT</Button></Grid.Col>
           <Grid.Col span={4}><Button onClick={()=>{
             updateMotor(1, "STOP");
@@ -69,17 +76,17 @@ function App() {
           }}>STOP</Button></Grid.Col>
           <Grid.Col span={4}><Button onClick={()=>{
             updateMotor(1, "BACKWARD");
-            updateMotor(2, "BACKWARD");
+            updateMotor(2, "FORWARD");
             updateMotor(3, "BACKWARD");
-            updateMotor(4, "BACKWARD");
+            updateMotor(4, "FORWARD");
           }}>RIGHT</Button></Grid.Col>
           <Grid.Col span={4}></Grid.Col>
           <Grid.Col span={4}><Button onClick={()=>{
             updateMotor(1, "BACKWARD");
             updateMotor(2, "BACKWARD");
-            updateMotor(3, "FORWARD");
-            updateMotor(4, "FORWARD");
-          }}>FORWARD</Button></Grid.Col>
+            updateMotor(3, "BACKWARD");
+            updateMotor(4, "BACKWARD");
+          }}>BACKWARD</Button></Grid.Col>
           <Grid.Col span={4}></Grid.Col>
         </Grid>
         <Stack spacing="xl" p="lg">

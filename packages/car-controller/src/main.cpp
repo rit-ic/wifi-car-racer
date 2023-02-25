@@ -9,36 +9,14 @@
 #include <ArduinoJson.h>
 #include <ESPAsyncWebServer.h>
 #include <LittleFS.h>
+#include "motor.h"
 
 const char *ssid = "hello";
 const char *password = "hello1234";
 
 unsigned long currentMillis = millis();
 
-// Webserver
 AsyncWebServer server(80);
-
-void setMotor(int pin1, int pin2, String state)
-{
-  if (state == "FORWARD")
-  {
-    analogWrite(pin1, 100);
-    analogWrite(pin2, 0);
-    Serial.println("IN FW");
-  }
-  else if (state == "BACKWARD")
-  {
-    analogWrite(pin1, 0);
-    analogWrite(pin2, 100);
-    Serial.println("IN BW");
-  }
-  else
-  {
-    analogWrite(pin1, 0);
-    analogWrite(pin2, 0);
-    Serial.println("IN STP");
-  }
-}
 
 const int A1A = 33;
 const int A1B = 32;
@@ -75,17 +53,15 @@ void setup()
   }
 
   // Connect to WIFI
-  // WiFi.mode(WIFI_STA);
-  // WiFi.begin(ssid, password);
-  IPAddress ip = WiFi.softAP(ssid, password);
+  WiFi.softAP(ssid, password);
+  Serial.print("IP Address: ");
+  Serial.println(WiFi.softAPIP());
   // if (WiFi.waitForConnectResult() != WL_CONNECTED)
   // {
   //   Serial.printf("WiFi Failed!\n");
   //   return;
   // }
 
-  Serial.print("IP Address: ");
-  Serial.println(ip);
 
   // Route for root index.html
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request)
@@ -108,22 +84,22 @@ void setup()
               if (request->hasParam("m1"))
               {
                 String m1 = request->getParam("m1")->value();
-                setMotor(A1A, A1B, m1);
+                setMotor(A1A, A1B, m1, atoi(request->getParam("speed")->value().c_str()));
               }
               if (request->hasParam("m2"))
               {
                 String m2 = request->getParam("m2")->value();
-                setMotor(B1A, B1B, m2);
+                setMotor(B1A, B1B, m2, atoi(request->getParam("speed")->value().c_str()));
               }
               if (request->hasParam("m3"))
               {
                 String m3 = request->getParam("m3")->value();
-                setMotor(A2A, A2B, m3);
+                setMotor(A2A, A2B, m3, atoi(request->getParam("speed")->value().c_str()));
               }
               if (request->hasParam("m4"))
               {
                 String m4 = request->getParam("m4")->value();
-                setMotor(B2A, B2B, m4);
+                setMotor(B2A, B2B, m4, atoi(request->getParam("speed")->value().c_str()));
               }
 
                 // delayMillis = atoi(delay.c_str());
