@@ -1,176 +1,82 @@
 import * as React from "react";
-import {
-  Button,
-  Container,
-  Grid,
-  Group,
-  Input,
-  Paper,
-  SegmentedControl,
-  Slider,
-  Stack,
-  Text,
-} from "@mantine/core";
-import { Blink } from "./pages/Blink";
-import { Normal } from "./pages/Normal";
-import { getState, sendCommand } from "./api/ServerAPI";
-import { State } from "./common/interfaces";
+import { Center, Container, Paper } from "@mantine/core";
+import { sendCommand } from "./api/ServerAPI";
+import { Joystick } from "react-joystick-component";
+import { IJoystickUpdateEvent } from "react-joystick-component/build/lib/Joystick";
+
+const updateMotor = async (
+  id: number,
+  state: "FORWARD" | "BACKWARD" | "STOP",
+  speed: number
+) => {
+  // console.log(`Sending ${state} to motor ${id}, speed: ${speed}`);
+  sendCommand([
+    [`m${id}`, `${state}`],
+    ["speed", `${speed}`],
+  ]);
+};
 
 function App() {
-  const [state, setState] = React.useState<State>({
-    led1: true,
-    led2: true,
-    blinking: true,
-    together: false,
-    delay: 0,
-  });
-
-  const [speed, setSpeed] = React.useState<number>(0);
-
-  const onSegmentChanged = (newValue: string) => {
-    sendCommand([["blink", [newValue].includes("false") ? "OFF" : "ON"]]);
-    getState(console.log);
-    getState(setState);
+  const onMove = (event: IJoystickUpdateEvent) => {
+    const { type, x, y, distance, direction } = event;
+    if (!distance) return;
+    //(70-255)
+    const d = distance - 40;
+    const min = 70;
+    const max = 255;
+    let s = 70 + Math.floor(((max - min) / 40) * d);
+    s = s < min ? min : s > max ? max : s;
+    switch (direction) {
+      case "LEFT":
+        updateMotor(1, "FORWARD", s);
+        updateMotor(2, "BACKWARD", s);
+        updateMotor(3, "FORWARD", s);
+        updateMotor(4, "BACKWARD", s);
+        break;
+      case "RIGHT":
+        updateMotor(1, "BACKWARD", s);
+        updateMotor(2, "FORWARD", s);
+        updateMotor(3, "BACKWARD", s);
+        updateMotor(4, "FORWARD", s);
+        break;
+      case "FORWARD":
+        updateMotor(1, "FORWARD", s);
+        updateMotor(2, "FORWARD", s);
+        updateMotor(3, "FORWARD", s);
+        updateMotor(4, "FORWARD", s);
+        break;
+      case "BACKWARD":
+        updateMotor(1, "BACKWARD", s);
+        updateMotor(2, "BACKWARD", s);
+        updateMotor(3, "BACKWARD", s);
+        updateMotor(4, "BACKWARD", s);
+        break;
+    }
   };
 
-  React.useEffect(() => {
-    console.log("USED EFFECT");
-    getState(console.log);
-    getState(setState);
-  }, []);
-
-  const updateMotor = async (
-    id: number,
-    state: "FORWARD" | "BACKWARD" | "STOP"
-  ) => {
-    console.log(`Sending ${state} to motor ${id}`);
-    sendCommand([[`m${id}`, `${state}`], ['speed', `${speed}`]]);
+  const onStop = () => {
+    updateMotor(1, "STOP", 0);
+    updateMotor(2, "STOP", 0);
+    updateMotor(3, "STOP", 0);
+    updateMotor(4, "STOP", 0);
   };
 
   return (
     <Container size="sm" my="lg">
       <Paper shadow="xs">
-        
-      <Slider value={speed} min={0} max={255} step={1} onChange={setSpeed} />
-
-        <Grid grow>
-          <Grid.Col span={4}></Grid.Col>
-          <Grid.Col span={4}><Button onClick={()=>{
-            updateMotor(1, "FORWARD");
-            updateMotor(2, "FORWARD");
-            updateMotor(3, "FORWARD");
-            updateMotor(4, "FORWARD");
-          }}>FORWARD</Button></Grid.Col>
-          <Grid.Col span={4}></Grid.Col>
-          <Grid.Col span={4}><Button onClick={()=>{
-            updateMotor(1, "FORWARD");
-            updateMotor(2, "BACKWARD");
-            updateMotor(3, "FORWARD");
-            updateMotor(4, "BACKWARD");
-          }}>LEFT</Button></Grid.Col>
-          <Grid.Col span={4}><Button onClick={()=>{
-            updateMotor(1, "STOP");
-            updateMotor(2, "STOP");
-            updateMotor(3, "STOP");
-            updateMotor(4, "STOP");
-          }}>STOP</Button></Grid.Col>
-          <Grid.Col span={4}><Button onClick={()=>{
-            updateMotor(1, "BACKWARD");
-            updateMotor(2, "FORWARD");
-            updateMotor(3, "BACKWARD");
-            updateMotor(4, "FORWARD");
-          }}>RIGHT</Button></Grid.Col>
-          <Grid.Col span={4}></Grid.Col>
-          <Grid.Col span={4}><Button onClick={()=>{
-            updateMotor(1, "BACKWARD");
-            updateMotor(2, "BACKWARD");
-            updateMotor(3, "BACKWARD");
-            updateMotor(4, "BACKWARD");
-          }}>BACKWARD</Button></Grid.Col>
-          <Grid.Col span={4}></Grid.Col>
-        </Grid>
-        <Stack spacing="xl" p="lg">
-          <Stack>
-            <Text>Motor 1</Text>
-            <Group>
-              <Button
-                onMouseUp={() => updateMotor(1, "STOP")}
-                onMouseDown={() => updateMotor(1, "FORWARD")}
-              >
-                FORWARD
-              </Button>
-              <Button
-                onMouseUp={() => updateMotor(1, "STOP")}
-                onMouseDown={() => updateMotor(1, "BACKWARD")}
-              >
-                BACKWARD
-              </Button>
-            </Group>
-          </Stack>
-          <Stack>
-            <Text>Motor 2</Text>
-            <Group>
-              <Button
-                onMouseUp={() => updateMotor(2, "STOP")}
-                onMouseDown={() => updateMotor(2, "FORWARD")}
-              >
-                FORWARD
-              </Button>
-              <Button
-                onMouseUp={() => updateMotor(2, "STOP")}
-                onMouseDown={() => updateMotor(2, "BACKWARD")}
-              >
-                BACKWARD
-              </Button>
-            </Group>
-          </Stack>
-          <Stack>
-            <Text>Motor 3</Text>
-            <Group>
-              <Button
-                onMouseUp={() => updateMotor(3, "STOP")}
-                onMouseDown={() => updateMotor(3, "FORWARD")}
-              >
-                FORWARD
-              </Button>
-              <Button
-                onMouseUp={() => updateMotor(3, "STOP")}
-                onMouseDown={() => updateMotor(3, "BACKWARD")}
-              >
-                BACKWARD
-              </Button>
-            </Group>
-          </Stack>
-          <Stack>
-            <Text>Motor 4</Text>
-            <Group>
-              <Button
-                onMouseUp={() => updateMotor(4, "STOP")}
-                onMouseDown={() => updateMotor(4, "FORWARD")}
-              >
-                FORWARD
-              </Button>
-              <Button
-                onMouseUp={() => updateMotor(4, "STOP")}
-                onMouseDown={() => updateMotor(4, "BACKWARD")}
-              >
-                BACKWARD
-              </Button>
-            </Group>
-          </Stack>
-          {/* <Text weight={600}>Kontroliraj Lampice</Text>
-          <SegmentedControl
-            color="blue"
-            value={state.blinking?"true":"false"}
-            onChange={onSegmentChanged}
-            data={[
-              { label: 'Normalno', value: 'false' },
-              { label: 'Treptanje', value: 'true' },
-            ]}
+        <Center style={{ minHeight: "60vh" }}>
+          <Joystick
+            size={200}
+            stickSize={60}
+            throttle={100}
+            baseColor={"#0099ff55"}
+            stickColor={"#0099ff"}
+            minDistance={30}
+            move={onMove}
+            stop={onStop}
+            sticky={false}
           />
-          {!state.blinking && <Normal state={state} setState={setState} />}
-          {state.blinking && <Blink state={state} setState={setState} />} */}
-        </Stack>
+        </Center>
       </Paper>
     </Container>
   );
