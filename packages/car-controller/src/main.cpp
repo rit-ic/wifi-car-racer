@@ -7,6 +7,7 @@
 #include <ArduinoJson.h>
 #include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
+#include <ESPmDNS.h>
 #include <LittleFS.h>
 #include <WiFi.h>
 
@@ -47,6 +48,7 @@ void setup() {
   }
 
   WiFi.softAP(ssid, password);
+  MDNS.begin("car");
 
   // Serve static React page
   setupIndexRoutes(server);

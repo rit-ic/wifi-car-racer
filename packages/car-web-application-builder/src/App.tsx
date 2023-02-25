@@ -20,11 +20,11 @@ function App() {
   const onMove = (event: IJoystickUpdateEvent) => {
     const { type, x, y, distance, direction } = event;
     if (!distance) return;
-    //(70-255)
+    //(50-255)
     const d = distance - 40;
-    const min = 70;
+    const min = 50;
     const max = 255;
-    let s = 70 + Math.floor(((max - min) / 40) * d);
+    let s = min + Math.floor(((max - min) / 40) * d);
     s = s < min ? min : s > max ? max : s;
     switch (direction) {
       case "LEFT":
@@ -67,7 +67,7 @@ function App() {
         <Center style={{ minHeight: "60vh" }}>
           <Joystick
             size={200}
-            stickSize={60}
+            stickSize={100}
             throttle={100}
             baseColor={"#0099ff55"}
             stickColor={"#0099ff"}
