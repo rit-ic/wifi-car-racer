@@ -3,6 +3,7 @@
 #include "routes/index.h"
 #include "routes/status.h"
 
+#include <Adafruit_VL53L0X.h>
 #include <Arduino.h>
 #include <ArduinoJson.h>
 #include <AsyncTCP.h>
@@ -16,14 +17,19 @@ const int A1B = 32;
 const int B1A = 25;
 const int B1B = 26;
 const int A2A = 19;
-const int A2B = 21;
+const int A2B = 5;
 const int B2A = 23;
 const int B2B = 22;
+
+const int SERVO_SIGNAL = 3;
+const int INPUT_DISTANCE = 4;
 
 const char *ssid = "hello";
 const char *password = "hello1234";
 
 unsigned long currentMillis = millis();
+
+Adafruit_VL53L0X lox = Adafruit_VL53L0X();
 
 AsyncWebServer server(80);
 
@@ -37,6 +43,8 @@ void setup() {
   pinMode(A2B, OUTPUT);
   pinMode(B2A, OUTPUT);
   pinMode(B2B, OUTPUT);
+  pinMode(SERVO_SIGNAL, OUTPUT);
+  pinMode(INPUT_DISTANCE, INPUT);
 
   Serial.begin(115200);
   Serial.println("Starting the LittleFS Webserver..");
@@ -44,6 +52,11 @@ void setup() {
   // Begin LittleFS
   if (!LittleFS.begin()) {
     Serial.println("An Error has occurred while mounting LittleFS");
+    return;
+  }
+
+  if (!lox.begin()) {
+    Serial.println(F("Failed to boot VL53L0X"));
     return;
   }
 

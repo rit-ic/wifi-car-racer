@@ -27,13 +27,13 @@ function App() {
     let s = min + Math.floor(((max - min) / 40) * d);
     s = s < min ? min : s > max ? max : s;
     switch (direction) {
-      case "LEFT":
+      case "RIGHT":
         updateMotor(1, "FORWARD", s);
         updateMotor(2, "BACKWARD", s);
         updateMotor(3, "FORWARD", s);
         updateMotor(4, "BACKWARD", s);
         break;
-      case "RIGHT":
+      case "LEFT":
         updateMotor(1, "BACKWARD", s);
         updateMotor(2, "FORWARD", s);
         updateMotor(3, "BACKWARD", s);
